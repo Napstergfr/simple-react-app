@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Breadcrumb, BreadcrumbItem, Button, Form, FormGroup, Label, Input, Col} from "reactstrap";
+import {Breadcrumb, BreadcrumbItem, Button, Form, FormGroup, Label, Input, Col, Row, FormFeedback} from "reactstrap";
 import {Link} from "react-router-dom";
 
 class Contact extends Component {
@@ -13,11 +13,19 @@ class Contact extends Component {
             email: '',
             agree: false,
             contactType: 'Tel.',
-            message: ''
+            message: '',
+            touched: {
+                firstName: false,
+                lastName: false,
+                telNumber: false,
+                email: false,
+            }
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
     }
+
     handleInputChange(event) {
         const target = event.target;
         const value = target.type === 'checkbox' ? target.checked : target.value;
@@ -34,8 +42,46 @@ class Contact extends Component {
         alert("Current state is: " + JSON.stringify(this.state));
         event.preventDefault();
     }
+
+    handleBlur = (field) => (evt) => {
+        this.setState({
+            touched: {...this.state.touched, [field]: true}
+        })
+    }
+
+    validate(firstName, lastName, telNumber, email) {
+        const errors = {
+            firstName: '',
+            lastName: '',
+            telNumber: '',
+            email: '',
+        }
+        if (this.state.touched.firstName && firstName.length < 3) {
+            errors.firstName = 'First Name should be >= 3 characters!';
+        } else if (this.state.touched.firstName && firstName.length > 10) {
+            errors.firstName = 'First Name should be <= 10 characters!';
+        }
+
+        if (this.state.touched.lastName && lastName.length < 3) {
+            errors.lastName = 'Last Name should be >= 3 characters!';
+        } else if (this.state.touched.lastName && lastName.length > 10) {
+            errors.lastName = 'Last Name should be <= 10 characters!';
+        }
+
+        const reg = /^\d+$/;
+        if (this.state.touched.telNumber && !reg.test(telNumber)) {
+            errors.telNumber = 'Tel Number should contain only numbers!';
+        }
+        if (this.state.touched.email && email.split('').filter(x => x === '@').length !== 1) {
+            errors.email = 'Not a vaild email address!';
+        }
+
+        return errors;
+    }
+
     render() {
-        return(
+        const errors = this.validate(this.state.firstName, this.state.lastName, this.state.telNumber, this.state.email);
+        return (
             <div className="container">
                 <div className="row">
                     <Breadcrumb>
@@ -56,12 +102,13 @@ class Contact extends Component {
                     <div className="col-12 col-sm-4 offset-sm-1">
                         <h5>Our Address</h5>
                         <address>
-                            121, Clear Water Bay Road<br />
-                            Clear Water Bay, Kowloon<br />
-                            HONG KONG<br />
-                            <i className="fa fa-phone"></i>: +852 1234 5678<br />
-                            <i className="fa fa-fax"></i>: +852 8765 4321<br />
-                            <i className="fa fa-envelope"></i>: <a href="mailto:confusion@food.net">confusion@food.net</a>
+                            121, Clear Water Bay Road<br/>
+                            Clear Water Bay, Kowloon<br/>
+                            HONG KONG<br/>
+                            <i className="fa fa-phone"></i>: +852 1234 5678<br/>
+                            <i className="fa fa-fax"></i>: +852 8765 4321<br/>
+                            <i className="fa fa-envelope"></i>: <a
+                            href="mailto:confusion@food.net">confusion@food.net</a>
                         </address>
                     </div>
                     <div className="col-12 col-sm-6 offset-sm-1">
@@ -69,9 +116,11 @@ class Contact extends Component {
                     </div>
                     <div className="col-12 col-sm-11 offset-sm-1">
                         <div className="btn-group" role="group">
-                            <a role="button" className="btn btn-primary" href="tel:+85212345678"><i className="fa fa-phone"></i> Call</a>
+                            <a role="button" className="btn btn-primary" href="tel:+85212345678"><i
+                                className="fa fa-phone"></i> Call</a>
                             <a role="button" className="btn btn-info"><i className="fa fa-skype"></i> Skype</a>
-                            <a role="button" className="btn btn-success" href="mailto:confusion@food.net"><i className="fa fa-envelope-o"></i> Email</a>
+                            <a role="button" className="btn btn-success" href="mailto:confusion@food.net"><i
+                                className="fa fa-envelope-o"></i> Email</a>
                         </div>
                     </div>
                 </div>
@@ -83,25 +132,49 @@ class Contact extends Component {
                                 <FormGroup row>
                                     <Label htmlFor="firstName" md={2}>First Name</Label>
                                     <Col md={10}>
-                                        <Input type="text" id="firstName"  name="firstName" placeholder="First Name" value={this.state.firstName} onChange={this.handleInputChange}/>
+                                        <Input type="text" id="firstName" name="firstName" placeholder="First Name"
+                                               value={this.state.firstName}
+                                               onBlur={this.handleBlur('firstName')}
+                                               valid={errors.firstName === ''}
+                                               invalid={errors.firstName !== ''}
+                                               onChange={this.handleInputChange}/>
+                                        <FormFeedback>{errors.firstName}</FormFeedback>
                                     </Col>
                                 </FormGroup>
                                 <FormGroup row>
                                     <Label htmlFor="lastName" md={2}>Last Name</Label>
                                     <Col md={10}>
-                                        <Input type="text" id="lastName"  name="lastName" placeholder="Last Name" value={this.state.lastName} onChange={this.handleInputChange}/>
+                                        <Input type="text" id="lastName" name="lastName" placeholder="Last Name"
+                                               value={this.state.lastName}
+                                               valid={errors.lastName === ''}
+                                               invalid={errors.lastName !== ''}
+                                               onBlur={this.handleBlur('lastName')}
+                                               onChange={this.handleInputChange}/>
+                                        <FormFeedback>{errors.lastName}</FormFeedback>
                                     </Col>
                                 </FormGroup>
                                 <FormGroup row>
                                     <Label htmlFor="telNumber" md={2}>Tel No.</Label>
                                     <Col md={10}>
-                                        <Input type="text" id="telNumber"  name="telNumber" placeholder="Tel No." value={this.state.telNumber} onChange={this.handleInputChange}/>
+                                        <Input type="text" id="telNumber" name="telNumber" placeholder="Tel No."
+                                               value={this.state.telNumber}
+                                               valid={errors.telNumber === ''}
+                                               invalid={errors.telNumber !== ''}
+                                               onBlur={this.handleBlur('telNumber')}
+                                               onChange={this.handleInputChange}/>
+                                        <FormFeedback>{errors.telNumber}</FormFeedback>
                                     </Col>
                                 </FormGroup>
                                 <FormGroup row>
                                     <Label htmlFor="email" md={2}>Email</Label>
                                     <Col md={10}>
-                                        <Input type="text" id="email"  name="email" placeholder="Email" value={this.state.email} onChange={this.handleInputChange}/>
+                                        <Input type="text" id="email" name="email" placeholder="Email"
+                                               value={this.state.email}
+                                               valid={errors.email === ''}
+                                               invalid={errors.email !== ''}
+                                               onBlur={this.handleBlur('email')}
+                                               onChange={this.handleInputChange}/>
+                                        <FormFeedback>{errors.email}</FormFeedback>
                                     </Col>
                                 </FormGroup>
                                 <FormGroup row>
@@ -109,7 +182,8 @@ class Contact extends Component {
                                         <FormGroup check>
                                             <Label check>
                                                 <Input type="checkbox" name="agree"
-                                                       checked={this.state.agree} onChange={this.handleInputChange}/> {' '}
+                                                       checked={this.state.agree}
+                                                       onChange={this.handleInputChange}/> {' '}
                                                 <strong>May we contact you?</strong>
                                             </Label>
                                         </FormGroup>
@@ -125,11 +199,12 @@ class Contact extends Component {
                                 <FormGroup row>
                                     <Label htmlFor="message" md={2}>Message</Label>
                                     <Col md={10}>
-                                        <Input type="textarea" id="message"  name="message" rows="12" value={this.state.message} onChange={this.handleInputChange}/>
+                                        <Input type="textarea" id="message" name="message" rows="12"
+                                               value={this.state.message} onChange={this.handleInputChange}/>
                                     </Col>
                                 </FormGroup>
                                 <FormGroup row>
-                                    <Col md={{size:10, offset:2}}>
+                                    <Col md={{size: 10, offset: 2}}>
                                         <Button type="submit" color="primary">Send feedback</Button>
                                     </Col>
                                 </FormGroup>
