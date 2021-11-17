@@ -84,7 +84,7 @@ class CommentForm extends Component {
                             <Row className="form-group">
                                 <Label htmlFor="author" md={12}> Your Name </Label>
                                 <Col md={12}>
-                                    <Control.ext model=".author" id="author" name="author"
+                                    <Control.text model=".author" id="author" name="author"
                                                   placeholder="First Name"
                                                   className="form-control"
                                                   validators={{
