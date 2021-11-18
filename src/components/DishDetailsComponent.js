@@ -6,10 +6,11 @@ import {
 } from "reactstrap";
 
 import { Control, LocalForm, Errors } from 'react-redux-form';
-
+import {Loading } from "./LoadingComponent";
 const required = (val) => val && val.length; //value > 0
 const maxLength = (len) => (val) => !(val) || (val.length <= len);
 const minLength = (len) => (val) => (val) && (val.length >= len);
+
 
 class CommentForm extends Component {
 
@@ -207,44 +208,57 @@ function RenderComments({dish,comments, addComment, dishId}){
 
 const DishDetail = (props) => {
 
-    const dish = props.dish
-
-
-    if (dish == null) {
-        return (<div></div>);
-    }
-
-    return (
-        <div className="container">
-            <div className="row">
-                <Breadcrumb>
-                    <BreadcrumbItem>
-                        <Link to="/menu">Menu</Link>
-                    </BreadcrumbItem>
-                    <BreadcrumbItem active>
-                        { props.dish.name }
-                    </BreadcrumbItem>
-                </Breadcrumb>
-
-                <div className="col-12">
-                    <h3> {props.dish.menu}</h3>
-                    <hr />
+    if(props.isLoading) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <Loading/>
                 </div>
             </div>
-
-            <div className='row'>
-                <RenderDish dish={ props.dish } />
-                <RenderComments
-                    dish={props.dish}
-                    comments={ props.comments }
-                    addComment={props.addComment}
-                    dishId={ props.dish.id }
-                />
+        );
+    } else if(props.errMess) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <h4>{props.errMess}</h4>
+                </div>
             </div>
+        );
+    }
+    if(props.dish != null) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <Breadcrumb>
+                        <BreadcrumbItem>
+                            <Link to="/menu">Menu</Link>
+                        </BreadcrumbItem>
+                        <BreadcrumbItem active>
+                            { props.dish.name }
+                        </BreadcrumbItem>
+                    </Breadcrumb>
 
+                    <div className="col-12">
+                        <h3> {props.dish.menu}</h3>
+                        <hr />
+                    </div>
+                </div>
 
-        </div>
-    )
+                <div className='row'>
+                    <RenderDish dish={ props.dish } />
+                    <RenderComments
+                        dish={props.dish}
+                        comments={ props.comments }
+                        addComment={props.addComment}
+                        dishId={ props.dish.id }
+                    />
+                </div>
+            </div>
+        )
+    } else {
+        return (<div><h4>Empty!</h4></div>);
+    }
+
 }
 
 
